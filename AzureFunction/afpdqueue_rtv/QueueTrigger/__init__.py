@@ -3,7 +3,8 @@ import os, json
 from azure.storage.blob import (
     AppendBlobService,
     BlockBlobService,
-    BlobPermissions
+    BlobPermissions,
+    ContainerPermissions
 )
 import azure.functions as func
 from io import BytesIO
@@ -18,11 +19,12 @@ import urllib.request as urllib2
 import ssl
 import time
 
-def main(msg: func.EventHubEvent):
-
+def main(msg: func.QueueMessage) -> None:
     # consume videoname from event that is put on blob storage using filename
-    logging.info('Python IoTHub trigger processed an event, 00:37 %s',
+
+    logging.info('Python queue trigger function processed a queue item: %s',
                  msg.get_body().decode('utf-8'))
+
     raw = msg.get_body().decode('utf-8')
     logging.info(raw)
     eventVideo=json.loads(raw)
@@ -90,13 +92,13 @@ def getVideo(blockBlobService: BlockBlobService, eventVideo: list):
             retry+=1
 
     # create SAS url such that video can be read from blob storage using opencv directly
-    sasTokenRead = blockBlobService.generate_blob_shared_access_signature(
+    sasTokenRead = blockBlobService.generate_container_shared_access_signature(
         os.environ['remoteStorageInputContainer'],
-        eventVideo["filename"],
-        BlobPermissions.READ,
+        ContainerPermissions.READ,
         datetime.utcnow() + timedelta(hours=1),
     )
     readURL = os.environ['storUrl'] + os.environ['remoteStorageInputContainer'] + "/" + eventVideo["filename"] + "?" + sasTokenRead
+    logging.info(readURL)
 
     # read video using opencv
     retry=1
