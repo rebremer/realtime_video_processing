@@ -1,0 +1,7 @@
+azure-iothub-device-client
+azure-storage-blob
+numpy
+opencv-contrib-python
+requests
+trollius
+tornado==4.5.3

@@ -1,0 +1,127 @@
+{
+  "modulesContent": {
+      "$edgeAgent": {
+          "properties.desired": {
+              "modules": {
+                  "camera-capture": {
+                      "settings": {
+                          "image": "$CONTAINER_REGISTRY_ADDRESS/cameracapture:0.2.8-test-amd64",
+                          "createOptions": "{\"HostConfig\":{\"PortBindings\":{\"5012/tcp\":[{\"HostPort\":\"5012\"}]},\"Binds\":[\"/dev/video0:/dev/video0\"]}}"
+                      },
+                      "type": "docker",
+                      "version": "1.0",
+                      "env": {
+                          "PRIVATE_IP_VM": {
+                            "value": "10.0.0.4"
+                          },
+                          "VIDEO_PATH": {
+                              "value": "./traingraffiti.mp4"
+                          },
+                          "IMAGE_PROCESSING_ENDPOINT": {
+                              "value": "http://image-classifier-service:80/image"
+                          },
+                          "VERBOSE": {
+                              "value": "True"
+                          },
+                          "RESIZE_WIDTH": {
+                              "value": "256"
+                          },
+                          "RESIZE_HEIGHT": {
+                              "value": "256"
+                          },
+                          "SHOW_VIDEO": {
+                              "value": "True"
+                          }
+                      },
+                      "status": "running",
+                      "restartPolicy": "always"
+                  },
+                  "image-classifier-service": {
+                      "settings": {
+                          "image": "$CONTAINER_REGISTRY_ADDRESS/imageclassifierservice:0.2.5-amd64",
+                          "createOptions": ""
+                      },
+                      "type": "docker",
+                      "version": "1.0",
+                      "status": "running",
+                      "restartPolicy": "always"
+                  },
+                  "azureblobstorageoniotedge": {
+                      "settings": {
+                          "image": "mcr.microsoft.com/azure-blob-storage:latest",
+                          "createOptions": "{\"Env\":[\"LOCAL_STORAGE_ACCOUNT_NAME=$LOCAL_STORAGE_NAME\",\"LOCAL_STORAGE_ACCOUNT_KEY=$LOCAL_STORAGE_KEY\"],\"HostConfig\":{\"Binds\":[\"/srv/containerdata:/blobroot\"],\"PortBindings\":{\"11002/tcp\":[{\"HostPort\":\"11002\"}]}}}"
+                      },
+                      "type": "docker",
+                      "status": "running",
+                      "restartPolicy": "always",
+                      "version": "1.0"
+                  }
+              },
+              "runtime": {
+                  "settings": {
+                      "minDockerVersion": "v1.25",
+                      "registryCredentials": {
+                          "registryName": {
+                              "address": "$CONTAINER_REGISTRY_ADDRESS",
+                              "password": "$CONTAINER_REGISTRY_PASSWORD",
+                              "username": "$CONTAINER_REGISTRY_USERNAME"
+                          }
+                      }
+                  },
+                  "type": "docker"
+              },
+              "schemaVersion": "1.0",
+              "systemModules": {
+                  "edgeAgent": {
+                      "settings": {
+                          "image": "mcr.microsoft.com/azureiotedge-agent:1.0",
+                          "createOptions": ""
+                      },
+                      "type": "docker"
+                  },
+                  "edgeHub": {
+                      "settings": {
+                          "image": "mcr.microsoft.com/azureiotedge-hub:1.0",
+                          "createOptions": ""
+                      },
+                      "type": "docker",
+                      "status": "running",
+                      "restartPolicy": "always"
+                  }
+              }
+          }
+      },
+      "$edgeHub": {
+          "properties.desired": {
+              "routes": {
+                  "CameraCaptureToIoTHub": "FROM /messages/modules/camera-capture/outputs/output1 INTO $upstream"
+              },
+              "schemaVersion": "1.0",
+              "storeAndForwardConfiguration": {
+                  "timeToLiveSecs": 7200
+              }
+          }
+      },
+      "camera-capture": {
+          "properties.desired": {}
+      },
+      "image-classifier-service": {
+          "properties.desired": {}
+      },
+      "azureblobstorageoniotedge": {
+        "properties.desired": {
+            "deviceToCloudUploadProperties": {
+                "uploadOn": true,
+                "uploadOrder": "OldestFirst",
+                "cloudStorageConnectionString": "$BLOB_STORAGE_CONNECTIONSTRING",
+                "storageContainersForUpload": {
+                    "$LOCAL_STORAGE_CONTAINER": {
+                        "target": "$BLOB_STRORAGE_CONTAINER"
+                    }
+                },
+                "deleteAfterUpload":true
+            }
+        }
+    }
+  }
+}
