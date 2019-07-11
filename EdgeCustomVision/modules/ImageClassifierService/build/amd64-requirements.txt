@@ -2,7 +2,7 @@
 #numpy
 #flask
 
-tensorflow==1.12.0
+tensorflow>=1.12.1
 pillow==5.0.0
 numpy==1.14.1
-flask==0.12.2
+flask>=0.12.3
