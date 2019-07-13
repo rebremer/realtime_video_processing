@@ -12,7 +12,13 @@
                       "version": "1.0",
                       "env": {
                           "PRIVATE_IP_VM": {
-                            "value": "10.0.0.4"
+                            "value": "$PRIVATE_IP_VM"
+                          },
+                          "LOCAL_STORAGE_KEY": {
+                            "value": "$LOCAL_STORAGE_KEY"
+                          },
+                          "LOCAL_STORAGE_NAME": {
+                            "value": "$LOCAL_STORAGE_NAME"
                           },
                           "VIDEO_PATH": {
                               "value": "./traingraffiti.mp4"
@@ -49,7 +55,7 @@
                   "azureblobstorageoniotedge": {
                       "settings": {
                           "image": "mcr.microsoft.com/azure-blob-storage:latest",
-                          "createOptions": "{\"Env\":[\"LOCAL_STORAGE_ACCOUNT_NAME=$LOCAL_STORAGE_NAME\",\"LOCAL_STORAGE_ACCOUNT_KEY=$LOCAL_STORAGE_KEY\"],\"HostConfig\":{\"Binds\":[\"/srv/containerdata:/blobroot\"],\"PortBindings\":{\"11002/tcp\":[{\"HostPort\":\"11002\"}]}}}"
+                          "createOptions": "{\"Env\":[\"LOCAL_STORAGE_ACCOUNT_NAME=$LOCAL_STORAGE_NAME\",\"LOCAL_STORAGE_ACCOUNT_KEY=$LOCAL_STORAGE_KEY\"],\"HostConfig\":{\"Binds\":[\"/srv/containerdatalocal:/blobroot\"],\"PortBindings\":{\"11002/tcp\":[{\"HostPort\":\"11002\"}]}}}"
                       },
                       "type": "docker",
                       "status": "running",
@@ -115,7 +121,7 @@
                 "uploadOrder": "OldestFirst",
                 "cloudStorageConnectionString": "$BLOB_STORAGE_CONNECTIONSTRING",
                 "storageContainersForUpload": {
-                    "$LOCAL_STORAGE_CONTAINER": {
+                    "$LOCAL_STORAGE_NAME": {
                         "target": "$BLOB_STRORAGE_CONTAINER"
                     }
                 },

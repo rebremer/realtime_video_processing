@@ -42,6 +42,8 @@ class CameraCapture(object):
     def __init__(
             self,
             privateIPVM,
+            localStorageName, 
+            localStorageKey, 
             videoPath,
             imageProcessingEndpoint = "",
             imageProcessingParams = "", 
@@ -54,6 +56,9 @@ class CameraCapture(object):
             annotate = False,
             sendToHubCallback = None):
         self.privateIPVM = privateIPVM
+        self.localStorageName = localStorageName
+        self.localStorageKey = localStorageKey
+
         self.videoPath = videoPath
         if self.__IsInt(videoPath):
             #case of a usb camera (usually mounted at /dev/video* where * is an int)
@@ -174,7 +179,7 @@ class CameraCapture(object):
             #Loop video
             if not self.isWebcam:             
                 if frameCounter == self.capture.get(cv2.CAP_PROP_FRAME_COUNT):
-                    if 1==2: 
+                    if self.loopVideo:
                         frameCounter = 0
                         self.capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
                     else:
@@ -277,17 +282,18 @@ class CameraCapture(object):
             cv2.destroyAllWindows()
 
     def uploadVideo(self):
-        outputConnectionString = "DefaultEndpointsProtocol=http;BlobEndpoint=http://" + self.privateIPVM + ":11002/localvideostor;AccountName=localvideostor;AccountKey=xpCr7otbKOOPw4KBLxtQXdG5P7gpDrNHGcrdC/w4ByjMfN4WJvvIU2xICgY7Tm/rsZhms4Uy4FWOMTeCYyGmIA==;"
-        outputContainer = 'localvideoblob'
+
+        outputConnectionString = "DefaultEndpointsProtocol=http;BlobEndpoint=http://" + self.privateIPVM + ":11002/" + self.localStorageName + ";AccountName=" + self.localStorageName + ";AccountKey=" + self.localStorageKey + ";"
+        #print("testrb" + self.privateIPVM + "," + self.localStorageContainer + "," + self.localStorageName + "," + self.localStorageKey + "," + outputConnectionString)
 
         now = datetime.strftime(datetime.now(), "%H%M%S")
-        inputFileName = self.videoPath[12:-4] + "_" + now + ".MP4"
+        inputFileName = self.videoPath[2:-4] + "_" + now + ".MP4"
 
         outputBlob = BlockBlobService(connection_string=outputConnectionString)
         print("create container")
-        outputBlob.create_container(outputContainer, fail_on_exist=False)
+        outputBlob.create_container(self.localStorageName, fail_on_exist=False)
         print("end creating container")
 
         print("start writing to local blob")
-        outputBlob.create_blob_from_path(outputContainer, inputFileName, self.videoPath)
+        outputBlob.create_blob_from_path(self.localStorageName, inputFileName, self.videoPath)
         print("end writing to local blob")

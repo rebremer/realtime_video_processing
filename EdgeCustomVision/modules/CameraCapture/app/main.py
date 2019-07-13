@@ -63,6 +63,8 @@ class HubManager(object):
 
 def main(
         privateIPVM,
+        localStorageName,
+        localStorageKey,
         videoPath,
         imageProcessingEndpoint = "",
         imageProcessingParams = "", 
@@ -97,7 +99,7 @@ def main(
         except IoTHubError as iothub_error:
             print ( "Unexpected error %s from IoTHub" % iothub_error )
             return
-        with CameraCapture(privateIPVM, videoPath, imageProcessingEndpoint, imageProcessingParams, showVideo, verbose, loopVideo, convertToGray, resizeWidth, resizeHeight, annotate, send_to_Hub_callback) as cameraCapture:
+        with CameraCapture(privateIPVM, localStorageName, localStorageKey, videoPath, imageProcessingEndpoint, imageProcessingParams, showVideo, verbose, loopVideo, convertToGray, resizeWidth, resizeHeight, annotate, send_to_Hub_callback) as cameraCapture:
             cameraCapture.start()
 
     except KeyboardInterrupt:
@@ -121,6 +123,8 @@ if __name__ == '__main__':
         else:
             VIDEO_PATH = os.environ['VIDEO_PATH']
         PRIVATE_IP_VM = os.environ['PRIVATE_IP_VM']
+        LOCAL_STORAGE_NAME=os.environ['LOCAL_STORAGE_NAME']
+        LOCAL_STORAGE_KEY=os.environ['LOCAL_STORAGE_KEY']
         IMAGE_PROCESSING_ENDPOINT = os.getenv('IMAGE_PROCESSING_ENDPOINT', "")
         IMAGE_PROCESSING_PARAMS = os.getenv('IMAGE_PROCESSING_PARAMS', "")
         SHOW_VIDEO = __convertStringToBool(os.getenv('SHOW_VIDEO', 'False'))
@@ -135,4 +139,4 @@ if __name__ == '__main__':
         print ( error )
         sys.exit(1)
 
-    main(PRIVATE_IP_VM, VIDEO_PATH, IMAGE_PROCESSING_ENDPOINT, IMAGE_PROCESSING_PARAMS, SHOW_VIDEO, VERBOSE, LOOP_VIDEO, CONVERT_TO_GRAY, RESIZE_WIDTH, RESIZE_HEIGHT, ANNOTATE)
+    main(PRIVATE_IP_VM, LOCAL_STORAGE_NAME, LOCAL_STORAGE_KEY, VIDEO_PATH, IMAGE_PROCESSING_ENDPOINT, IMAGE_PROCESSING_PARAMS, SHOW_VIDEO, VERBOSE, LOOP_VIDEO, CONVERT_TO_GRAY, RESIZE_WIDTH, RESIZE_HEIGHT, ANNOTATE)
