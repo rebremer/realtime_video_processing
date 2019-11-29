@@ -1,5 +1,5 @@
 azure-iothub-device-client
-azure-storage-blob
+azure-storage-blob==2.0.1
 numpy
 opencv-contrib-python
 requests
