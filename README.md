@@ -1,6 +1,5 @@
 
 # Git repository to support my Azure IoT Edge/Cognitive Services blogs
-#IoT Project
 1. Intelligent, realtime and scalable video processing in Azure, see
 Link: https://towardsdatascience.com/intelligent-realtime-and-scalable-video-processing-in-azure-201f87104f03
 
